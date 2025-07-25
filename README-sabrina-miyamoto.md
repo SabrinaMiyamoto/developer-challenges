@@ -1,5 +1,5 @@
-#Projeto Full-Stack | Desafio de Gerenciamento de Máquinas
-##Descrição do Projeto
+# Projeto Full-Stack | Desafio de Gerenciamento de Máquinas
+## Descrição do Projeto
 Este projeto é uma aplicação full-stack desenvolvida para gerenciar máquinas industriais, seus pontos de monitoramento e sensores. Ele demonstra a implementação de um sistema de CRUD (criar, ler, atualizar, deletar) robusto e uma lógica de negócio específica para garantir a integridade dos dados. A arquitetura utiliza Next.js para o front-end, com gerenciamento de estado centralizado pelo Redux Toolkit.
 
 ---
@@ -13,12 +13,12 @@ Este projeto é uma aplicação full-stack desenvolvida para gerenciar máquinas
 
 ---
 
-Tecnologias Utilizadas
+## Tecnologias Utilizadas
 Front-end: Next.js, React, TypeScript, Redux Toolkit, Material UI (MUI).
 
 ---
 
-##Análise Técnica
+## Análise Técnica
 
 1. Estrutura do Projeto (Monorepo)
 O projeto é organizado como um monorepo, com as pastas front e, futuramente, back na raiz do repositório. Essa estrutura permite o gerenciamento de ambos os projetos em um único lugar, facilitando a organização e a colaboração.
@@ -28,22 +28,26 @@ A arquitetura do front-end é baseada no Redux Toolkit. O estado da aplicação 
 
 ---
 
-##Instalação e Execução
+## Instalação e Execução
 
 1. Clonar o Repositório
 
 ```Bash
 git clone [https://github.com/SabrinaMiyamoto/developer-challenges](https://github.com/SabrinaMiyamoto/developer-challenges)
 cd developer-challenges
-
-##2. Instalar as Dependências
+```
+2. Instalar as Dependências
 
 ```Bash
 
 cd front
 npm install
 
-###3. Executar o Projeto
+```
+
+3. Executar o Projeto
 ```Bash
 
 npm run dev
+
+```
