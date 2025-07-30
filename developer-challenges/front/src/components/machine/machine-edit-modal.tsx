@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState, useEffect } from 'react';
 import {
   Modal,
@@ -14,9 +13,10 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
+  SelectChangeEvent
 } from '@mui/material';
 import { Machine, MachineType } from '@/types/machine';
-import { useUpdateMachineMutation } from '@/api/machines-api';
+import { useUpdateMachineMutation, useGetMachinesQuery } from '@/api/machines-api';
 
 interface MachineEditModalProps {
   open: boolean;
@@ -24,9 +24,8 @@ interface MachineEditModalProps {
   machine: Machine | null;
 }
 
-const style = {
-  // eslint-disable-next-line @typescript-eslint/prefer-as-const
-  position: 'absolute' as 'absolute',
+const modalStyle = {
+  position: 'absolute',
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
@@ -39,51 +38,71 @@ const style = {
 } as const;
 
 const MachineEditModal: React.FC<MachineEditModalProps> = ({ open, onClose, machine }) => {
-  const [editedName, setEditedName] = useState(machine?.name || '');
-  const [editedType, setEditedType] = useState<MachineType>(machine?.type || MachineType.PUMP);
+  const [formData, setFormData] = useState({
+    name: '',
+    type: MachineType.PUMP
+  });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error'
+  });
 
-  const [updateMachine, { isLoading: isUpdating, isSuccess: isUpdateSuccess, isError: isUpdateError, error: updateError }] = useUpdateMachineMutation();
-
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+  const [updateMachine, { isLoading }] = useUpdateMachineMutation();
+  const { data: machines = [] } = useGetMachinesQuery();
 
   useEffect(() => {
     if (machine) {
-      setEditedName(machine.name);
-      setEditedType(machine.type);
+      setFormData({
+        name: machine.name,
+        type: machine.type
+      });
     }
   }, [machine]);
 
-  useEffect(() => {
-    if (isUpdateSuccess) {
-      setSnackbarMessage('Máquina atualizada com sucesso!');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-      onClose();
-    } else if (isUpdateError) {
-      console.error('Erro ao atualizar máquina:', updateError);
-      setSnackbarMessage('Erro ao atualizar máquina.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-    }
-  }, [isUpdateSuccess, isUpdateError, updateError, onClose]);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-  const handleSave = async () => {
+  const handleSelectChange = (e: SelectChangeEvent<MachineType>) => {
+    setFormData(prev => ({ ...prev, type: e.target.value as MachineType }));
+  };
+
+  const showSnackbar = (message: string, severity: 'success' | 'error') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleSubmit = async () => {
     if (!machine) return;
 
+    // Validação de nome duplicado
+    const duplicate = machines.some((m: Machine) => 
+      m.name === formData.name && 
+      m.type === formData.type && 
+      m.id !== machine.id
+    );
+
+    if (duplicate) {
+      showSnackbar('Já existe uma máquina com este nome e tipo!', 'error');
+      return;
+    }
+
     try {
-      await updateMachine({ id: machine.id, name: editedName, type: editedType }).unwrap();
-    } catch (apiError) { 
-      console.error('Erro inesperado ao salvar máquina:', apiError);
+      await updateMachine({ 
+        id: machine.id, 
+        ...formData 
+      }).unwrap();
+      showSnackbar('Máquina atualizada com sucesso!', 'success');
+      onClose();
+    } catch (error) {
+      console.error('Erro ao atualizar máquina:', error);
+      showSnackbar('Erro ao atualizar máquina', 'error');
     }
   };
 
-  const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbarOpen(false);
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
   };
 
   return (
@@ -91,34 +110,36 @@ const MachineEditModal: React.FC<MachineEditModalProps> = ({ open, onClose, mach
       <Modal
         open={open}
         onClose={onClose}
-        aria-labelledby="modal-title"
-        aria-describedby="modal-description"
+        aria-labelledby="edit-machine-modal"
       >
-        <Box sx={style}>
-          <Typography id="modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" component="h2" mb={3}>
             Editar Máquina
           </Typography>
 
           <TextField
             fullWidth
-            label="Nome da Máquina"
-            value={editedName}
-            onChange={(e) => setEditedName(e.target.value)}
+            label="Nome"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
             margin="normal"
-            variant="outlined"
-            disabled={isUpdating}
+            disabled={isLoading}
+            inputProps={{ maxLength: 50 }}
           />
 
-          <FormControl fullWidth margin="normal" variant="outlined" disabled={isUpdating}>
-            <InputLabel id="machine-type-label">Tipo</InputLabel>
+          <FormControl fullWidth margin="normal" disabled={isLoading}>
+            <InputLabel>Tipo</InputLabel>
             <Select
-              labelId="machine-type-label"
-              value={editedType}
-              onChange={(e) => setEditedType(e.target.value as MachineType)}
+              value={formData.type}
+              onChange={handleSelectChange}
               label="Tipo"
             >
-              <MenuItem value={MachineType.PUMP}>{MachineType.PUMP}</MenuItem>
-              <MenuItem value={MachineType.FAN}>{MachineType.FAN}</MenuItem>
+              {Object.values(MachineType).map(type => (
+                <MenuItem key={type} value={type}>
+                  {type}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -126,30 +147,33 @@ const MachineEditModal: React.FC<MachineEditModalProps> = ({ open, onClose, mach
             <Button
               variant="outlined"
               onClick={onClose}
-              disabled={isUpdating}
+              disabled={isLoading}
             >
               Cancelar
             </Button>
             <Button
               variant="contained"
-              onClick={handleSave}
-              disabled={isUpdating}
-              startIcon={isUpdating ? <CircularProgress size={20} /> : null}
+              onClick={handleSubmit}
+              disabled={isLoading}
+              startIcon={isLoading ? <CircularProgress size={20} /> : null}
             >
-              {isUpdating ? 'Salvando...' : 'Salvar'}
+              {isLoading ? 'Salvando...' : 'Salvar'}
             </Button>
           </Box>
         </Box>
       </Modal>
 
       <Snackbar
-        open={snackbarOpen}
+        open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
+        <Alert 
+          severity={snackbar.severity} 
+          onClose={handleCloseSnackbar}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
         </Alert>
       </Snackbar>
     </>

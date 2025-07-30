@@ -7,17 +7,29 @@ export enum MachineType {
 export interface IMonitoringPoint {
   id: string;
   machineId: string;
-  name: string;
-  sensor: ISensor | null;
+  name: string,
+  machineName: string;
+  machineType: MachineType;
+  sensor: ISensor;
+  createdAt: string;
+  lastMaintenanceDate: string;
 }
 
 export interface Machine {
   id: string;
   name: string; 
   type: MachineType;
-  monitoringPoints: IMonitoringPoint[];
 }
-export interface NewMachine {
-  name: string;
-  type: MachineType;
+
+//para não ter que chamar uma função
+export interface NewMachine extends Omit<Machine, 'id'> {}
+
+
+export interface GetMonitoringPointsResponse {
+  data: IMonitoringPoint[];
+  total: number;
+  page: number; 
+  pageSize: number; 
 }
+export type SortableField = 'name' | 'machineName' | 'machineType' | 'sensorModel' | 'createdAt' | 'lastMaintenanceDate';
+export type SortDirection = 'asc' | 'desc';

@@ -66,7 +66,7 @@ export const redOrange = {
   600: '#de3024',
   700: '#bb241a',
   800: '#9a221a',
-  900: '#80231c',
+  900: '#80231cff',
   950: '#460d09',
 } satisfies PartialColor;
 

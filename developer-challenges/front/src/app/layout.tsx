@@ -18,14 +18,13 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-br">
+    <html lang="pt-br" suppressHydrationWarning={true}> 
       <body className={inter.className}>
         <LocalizationProvider>
           <UserProvider>
             <ReduxProvider>
               <SettingsProvider>
                 <ThemeProvider>
-                  {/* Componente de inicialização do MSW */}
                   <MSWInit />
                   <Box sx={{ bgcolor: 'var(--mui-palette-background-default)' }}>
                     {children}

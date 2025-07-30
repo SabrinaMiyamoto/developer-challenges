@@ -1,162 +1,159 @@
 'use client';
-
-import React, { useState, useEffect } from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
-import MenuItem from '@mui/material/MenuItem';
-import { useCreateMachineMutation } from '@/api/machines-api';
+import React, { useState } from 'react';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Card,
+  CardContent,
+  Snackbar,
+  Alert,
+  MenuItem,
+  CircularProgress
+} from '@mui/material';
+import { useCreateMachineMutation, useGetMachinesQuery } from '@/api/machines-api';
 import { MachineType } from '@/types/machine';
-
-interface ApiErrorWithData {
-  data?: {
-    message?: string;
-  };
-  status?: number;
-}
-
-interface ApiErrorWithErrorString {
-  error: string;
-}
-function isErrorWithData(error: unknown): error is ApiErrorWithData {
-  return typeof error === 'object' && error != null && 'data' in error;
-}
-
-function isErrorWithErrorString(error: unknown): error is ApiErrorWithErrorString {
-  return typeof error === 'object' && error != null && 'error' in error && typeof (error as ApiErrorWithErrorString).error === 'string';
-}
 
 const MACHINE_TYPE_OPTIONS = Object.values(MachineType);
 
 const MachineAddForm = () => {
-  const [name, setName] = useState('');
-  const [type, setType] = useState<MachineType>(MACHINE_TYPE_OPTIONS[0]);
+  // Busca as máquinas existentes da API mockada
+  const { data: existingMachines = [] } = useGetMachinesQuery();
+  const [createMachine, { isLoading }] = useCreateMachineMutation();
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    type: MACHINE_TYPE_OPTIONS[0] as MachineType
+  });
+  
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error'
+  });
 
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
-  const [isSubmitting, setSubmitting] = useState(false);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-  const [createMachine, { isLoading, isSuccess, isError, error }] = useCreateMachineMutation();
+  const handleSelectChange = (e: React.ChangeEvent<{ value: unknown }>) => {
+    setFormData(prev => ({ ...prev, type: e.target.value as MachineType }));
+  };
 
-  useEffect(() => {
-    if (isSuccess) {
-      setSnackbarMessage('Máquina adicionada com sucesso!');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-      setName('');
-      setType(MACHINE_TYPE_OPTIONS[0]);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.name.trim()) {
+      showSnackbar('Por favor, insira um nome para a máquina', 'error');
+      return;
     }
-    if (isError) {
-      let errorMessage = 'Erro desconhecido ao adicionar máquina.';
-      if (isErrorWithData(error)) {
-        errorMessage = error.data?.message ?? errorMessage;
-      } else if (isErrorWithErrorString(error)) {
-        errorMessage = error.error;
-      }
 
-      setSnackbarMessage(`Erro: ${errorMessage}`);
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-      console.error('Erro na criação da máquina:', error);
-    }
-  }, [isSuccess, isError, error]);
+    // Verificação de duplicata usando a API mockada
+    const isDuplicate = existingMachines.some(
+      machine => 
+        machine.name.toLowerCase() === formData.name.trim().toLowerCase() && 
+        machine.type === formData.type
+    );
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!name || !type) {
-      setSnackbarMessage('Por favor, preencha todos os campos.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+    if (isDuplicate) {
+      showSnackbar('Já existe uma máquina com este nome e tipo!', 'error');
       return;
     }
 
     try {
-      setSubmitting(true);
-      const result = await createMachine({ name, type }).unwrap();
-
-      setSnackbarMessage(`Máquina cadastrada com sucesso!\nNome: ${result.name}\nTipo: ${result.type}`);
-      setSnackbarSeverity('success');
-      setName('');
-      setType(MACHINE_TYPE_OPTIONS[0]);
-    } catch (error_) {
-      const apiError = error_ as ApiErrorWithData; 
-      const errorMessage = apiError?.data?.message ?? 'Erro ao cadastrar máquina';
-      console.error('Erro no cadastro:', {
-        message: apiError.data?.message,
-        status: apiError.status,
-        error: error_
-      });
-      setSnackbarMessage(errorMessage);
-      setSnackbarSeverity('error');
-    } finally {
-      setSubmitting(false);
-      setSnackbarOpen(true);
+      await createMachine(formData).unwrap();
+      showSnackbar(`Máquina "${formData.name}" criada com sucesso!`, 'success');
+      resetForm();
+    } catch (error) {
+      showSnackbar('Erro ao criar máquina', 'error');
+      console.error('Erro na criação:', error);
     }
   };
 
-  const handleCloseSnackbar = (e?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') return;
-    setSnackbarOpen(false);
+  const showSnackbar = (message: string, severity: 'success' | 'error') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      type: MACHINE_TYPE_OPTIONS[0]
+    });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
   };
 
   return (
     <Card sx={{ p: 2, mt: 3 }}>
       <CardContent>
-        <Typography variant="h5" component="h2" sx={{ mb: 3 }}>
+        <Typography variant="h5" component="h2" gutterBottom>
           Adicionar Nova Máquina
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           <TextField
             label="Nome da Máquina"
-            variant="outlined"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
             fullWidth
-            value={name}
-            onChange={(e) => setName(e.target.value)}
             required
+            inputProps={{ maxLength: 50 }}
+            error={existingMachines.some(m => 
+              m.name.toLowerCase() === formData.name.trim().toLowerCase() && 
+              m.type === formData.type
+            )}
+            helperText={
+              existingMachines.some(m => 
+                m.name.toLowerCase() === formData.name.trim().toLowerCase() && 
+                m.type === formData.type
+              ) ? 'Já existe uma máquina com este nome e tipo!' : ''
+            }
           />
+          
           <TextField
             select
             label="Tipo da Máquina"
-            variant="outlined"
+            value={formData.type}
+            onChange={handleSelectChange}
             fullWidth
-            value={type}
-            onChange={(e) => setType(e.target.value as MachineType)}
             required
-            autoComplete="off"
           >
-            {MACHINE_TYPE_OPTIONS.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
+            {MACHINE_TYPE_OPTIONS.map((type) => (
+              <MenuItem key={type} value={type}>
+                {type}
               </MenuItem>
             ))}
           </TextField>
+          
           <Button
             type="submit"
             variant="contained"
-            color="primary"
-            disabled={isSubmitting || isLoading}
-            sx={{ mt: 2 }}
+            disabled={isLoading}
+            startIcon={isLoading ? <CircularProgress size={20} /> : null}
+            sx={{ mt: 1 }}
           >
-            {isLoading ? 'Adicionando...' : 'Adicionar Máquina'}
+            {isLoading ? 'Salvando...' : 'Adicionar Máquina'}
           </Button>
         </Box>
       </CardContent>
 
       <Snackbar
-        open={snackbarOpen}
+        open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
         </Alert>
       </Snackbar>
     </Card>
