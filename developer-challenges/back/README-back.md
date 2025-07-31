@@ -4,6 +4,7 @@
 O backend desta aplicação fornece a API para o sistema de gerenciamento de máquinas industriais, com endpoints para autenticação, CRUD de máquinas e pontos de monitoramento, seguindo regras de negócio específicas.
 
 ---
+
 ## Funcionalidades
 
 ✅ Autenticação de Usuário: Login e logout com JWT
@@ -16,6 +17,7 @@ O backend desta aplicação fornece a API para o sistema de gerenciamento de má
 
 ✅ Paginação e Ordenação: Listagens com suporte a paginação
 
+
 ## Tecnologias Utilizadas
 
 - Node.js (Runtime JavaScript)
@@ -24,9 +26,13 @@ O backend desta aplicação fornece a API para o sistema de gerenciamento de má
 
 - JWT (Autenticação por tokens)
 
-- UUID (Geração de identificadores únicos)
+- MongoDB (Atlas)
+
+- Mongoose
+
 
 ## Instalação e Execução
+
 
 1. Clonar o Repositório
 
