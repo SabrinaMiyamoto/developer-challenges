@@ -18,7 +18,6 @@ import { MachineType } from '@/types/machine';
 const MACHINE_TYPE_OPTIONS = Object.values(MachineType);
 
 const MachineAddForm = () => {
-  // Busca as máquinas existentes da API mockada
   const { data: existingMachines = [] } = useGetMachinesQuery();
   const [createMachine, { isLoading }] = useCreateMachineMutation();
   

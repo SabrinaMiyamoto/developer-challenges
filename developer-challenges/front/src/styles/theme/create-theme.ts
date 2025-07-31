@@ -1,5 +1,4 @@
 import { createTheme } from "@mui/material/styles";
-
 import { colorSchemes } from './color-schemes';
 import { components } from './components/components';
 import { shadows } from './shadows';

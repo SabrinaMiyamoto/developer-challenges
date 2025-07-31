@@ -4,7 +4,7 @@ import { MachineType } from '@/types/machine';
 import { ISensor, SensorModel } from '@/types/sensor';
 import { v4 as uuidv4 } from 'uuid';
 
-// 1. Mocks de Sensores - URLs ajustadas para assets públicos
+// 1. Mocks de Sensores
 const mockSensorHFPlus: ISensor = {
   id: uuidv4(),
   model: SensorModel.HF_PLUS,

@@ -29,8 +29,6 @@ const schema = zod.object({
 
 type Values = zod.infer<typeof schema>;
 
-//senha e email fixos
-
 const FIXED_USERS = [
   { email: 'user@teste.com', token: 'senha123' },
   { email: 'admin@teste.com', token: 'admin123' },

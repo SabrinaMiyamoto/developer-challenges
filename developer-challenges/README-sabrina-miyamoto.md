@@ -22,7 +22,7 @@ Front-end: Next.js, React, TypeScript, Redux Toolkit, Material UI (MUI).
 ## Análise Técnica
 
 1. Estrutura do Projeto (Monorepo)
-O projeto é organizado como um monorepo, com as pastas front e, futuramente, back na raiz do repositório. Essa estrutura permite o gerenciamento de ambos os projetos em um único lugar, facilitando a organização e a colaboração.
+O projeto é organizado como um monorepo, com as pastas front e back na raiz do repositório. Essa estrutura permite o gerenciamento de ambos os projetos em um único lugar, facilitando a organização e a colaboração.
 
 2. Gerenciamento de Estado (Redux Toolkit)
 A arquitetura do front-end é baseada no Redux Toolkit. O estado da aplicação incluindo autenticação, máquinas e pontos de monitoramento é gerenciado de forma centralizada em uma única fonte de verdade. A migração do Context API para o Redux está concluída, resultando em um código mais previsível e de fácil manutenção.

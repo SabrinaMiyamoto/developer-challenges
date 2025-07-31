@@ -1,4 +1,3 @@
--preciso implementar o asc/desc na página dos sensores!
--adicionar os sensores para quando eu vou criar uma máquina e quando eu vou editar uma máquina
--REtirar o que não estou utilizando e organizar o código!
--preciso organizar melhor o nav e tirar a logo do devias!
+-integrar o front e o back
+-banco de dados
+-testes

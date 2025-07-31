@@ -49,7 +49,7 @@ const MachineList = () => {
         setSnackbarSeverity('success');
         setOpenSnackbar(true);
       } catch (error_) { 
-        console.error('Falha ao deletar a máquina:', error_); // `error_` está sendo usado
+        console.error('Falha ao deletar a máquina:', error_);
         setSnackbarMessage('Erro ao deletar a máquina.');
         setSnackbarSeverity('error');
         setOpenSnackbar(true);
@@ -72,7 +72,7 @@ const MachineList = () => {
     }
   }, [isDeleteSuccess, isDeleteError, deleteError]);
 
-  // Função para fechar o Snackbar. Ignora cliques "clickaway" para evitar fechamento acidental.
+
   const handleCloseSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
@@ -86,9 +86,6 @@ const MachineList = () => {
     setSelectedMachine(null);
   };
 
-  // --- Lógica de Filtragem de Máquinas ---
-
-  // Handler para o clique nos botões de filtro (Todas, PUMP, FAN)
   const handleFilterClick = (type: MachineType | null) => {
     setFilterType(type);
     if (listRef.current) {
@@ -100,7 +97,6 @@ const MachineList = () => {
     filterType === null || machine.type === filterType
   );
 
-  // --- Renderização Condicional (Estados da UI) ---
 
 
   if (isLoading) {
@@ -121,7 +117,7 @@ const MachineList = () => {
   }
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ p: 2, display:'flex', flexWrap:'wrap', flexDirection:'column', }}>
       <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
         Lista de Máquinas
       </Typography>
