@@ -1,96 +1,86 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Machine, MachineDocument } from './schema/machine.schemas';
+import { MachineType } from './entities/machine.entity';
 import { CreateMachineDto } from './dto/create-machine.dto';
 import { UpdateMachineDto } from './dto/update-machine.dto';
-import { Machine, MachineType } from './entities/machine.entity';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class MachinesService {
+  constructor(
+    @InjectModel(Machine.name) private machineModel: Model<MachineDocument>,
+  ) {}
 
-  private machines: Machine[] = [
-    { id: uuidv4(), name: 'Bomba Principal A', type: MachineType.PUMP },
-    { id: uuidv4(), name: 'Exaustor do Setor C', type: MachineType.FAN },
-    { id: uuidv4(), name: 'Bomba Auxiliar B', type: MachineType.PUMP },
-    { id: uuidv4(), name: 'Ventilador de Refrigeração', type: MachineType.FAN },
-  ];
+  async create(createMachineDto: CreateMachineDto): Promise<Machine> {
+    const existingMachine = await this.machineModel.findOne({
+      name: createMachineDto.name,
+      type: createMachineDto.type,
+    }).exec();
 
-  create(createMachineDto: CreateMachineDto): Machine {
-    const newMachine: Machine = {
-      id: uuidv4(), 
-      ...createMachineDto,
-    };
-    this.machines.push(newMachine);
-    return newMachine;
+    if (existingMachine) {
+      throw new ConflictException('Já existe uma máquina com este nome e tipo.');
+    }
+
+    const createdMachine = new this.machineModel(createMachineDto);
+    return createdMachine.save();
   }
 
-
-  findAll(
+  async findAll(
     page: number = 0,
     pageSize: number = 5,
-    sortBy: keyof Machine = 'name', 
+    sortBy: keyof Machine = 'name',
     sortDirection: 'asc' | 'desc' = 'asc',
     searchTerm?: string
-  ): { data: Machine[]; total: number } {
-    let filteredMachines = [...this.machines];
+  ): Promise<{ data: Machine[]; total: number }> {
+    let query: any = {};
 
-   
     if (searchTerm) {
-      const lowerCaseSearchTerm = searchTerm.toLowerCase();
-      filteredMachines = filteredMachines.filter(machine =>
-        machine.name.toLowerCase().includes(lowerCaseSearchTerm) ||
-        machine.type.toLowerCase().includes(lowerCaseSearchTerm)
-      );
+      const regex = new RegExp(searchTerm, 'i');
+      query.$or = [
+        { name: { $regex: regex } },
+        { type: { $regex: regex } },
+      ];
     }
 
+    const total = await this.machineModel.countDocuments(query).exec();
 
-    const sortedMachines = [...filteredMachines];
+    const sortOptions: { [key: string]: 'asc' | 'desc' | 1 | -1 } = {};
     if (sortBy) {
-      sortedMachines.sort((a, b) => {
-        const valA = String(a[sortBy] || '').toLowerCase();
-        const valB = String(b[sortBy] || '').toLowerCase();
-        const comparisonResult = valA.localeCompare(valB);
-        return sortDirection === 'asc' ? comparisonResult : -comparisonResult;
-      });
+      sortOptions[sortBy] = sortDirection === 'asc' ? 1 : -1;
     }
 
-
-    const total = sortedMachines.length;
-    const startIndex = page * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedMachines = sortedMachines.slice(startIndex, endIndex);
+    const paginatedMachines = await this.machineModel
+      .find(query)
+      .sort(sortOptions)
+      .skip(page * pageSize)
+      .limit(pageSize)
+      .exec();
 
     return { data: paginatedMachines, total };
   }
 
-  findOne(id: string): Machine | undefined {
-    const machine = this.machines.find((m) => m.id === id);
+  async findOne(id: string): Promise<Machine> {
+    const machine = await this.machineModel.findById(id).exec();
     if (!machine) {
-      throw new NotFoundException(`Máquina com ID "${id}" não encontrada.`);
+      throw new NotFoundException('Máquina com ID "' + id + '" não encontrada.');
     }
     return machine;
   }
 
-  update(id: string, updateMachineDto: UpdateMachineDto): Machine {
-    const existingMachineIndex = this.machines.findIndex((m) => m.id === id);
-
-    if (existingMachineIndex === -1) {
-      throw new NotFoundException(`Máquina com ID "${id}" não encontrada.`);
+  async update(id: string, updateMachineDto: UpdateMachineDto): Promise<Machine> {
+    const updatedMachine = await this.machineModel.findByIdAndUpdate(id, updateMachineDto, { new: true }).exec();
+    if (!updatedMachine) {
+      throw new NotFoundException('Máquina com ID "' + id + '" não encontrada para atualização.');
     }
-
-    const updatedMachine: Machine = {
-      ...this.machines[existingMachineIndex],
-      ...updateMachineDto,
-    };
-
-    this.machines[existingMachineIndex] = updatedMachine;
     return updatedMachine;
   }
 
-  remove(id: string): void {
-    const initialLength = this.machines.length;
-    this.machines = this.machines.filter((m) => m.id !== id);
-    if (this.machines.length === initialLength) {
-      throw new NotFoundException(`Máquina com ID "${id}" não encontrada.`);
+  async remove(id: string): Promise<any> {
+    const result = await this.machineModel.deleteOne({ _id: id }).exec();
+    if (result.deletedCount === 0) {
+      throw new NotFoundException('Máquina com ID "' + id + '" não encontrada para exclusão.');
     }
+    return { message: 'Máquina deletada com sucesso.', id: id };
   }
 }

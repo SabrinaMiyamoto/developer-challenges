@@ -16,8 +16,8 @@ import {
 import { MachinesService } from './machines.service';
 import { CreateMachineDto } from './dto/create-machine.dto';
 import { UpdateMachineDto } from './dto/update-machine.dto';
-import { Machine } from './entities/machine.entity';
-import { JwtAuthGuard } from 'src/auth/jwt-auth-guard';
+import { Machine } from './schema/machine.schemas'; 
+import { JwtAuthGuard } from 'src/auth/jwt-auth-guard'; 
 
 @Controller('machines')
 @UseGuards(JwtAuthGuard)
@@ -26,22 +26,21 @@ export class MachinesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() createMachineDto: CreateMachineDto) {
-    return this.machinesService.create(createMachineDto);
+  async create(@Body() createMachineDto: CreateMachineDto): Promise<Machine> {
+    return await this.machinesService.create(createMachineDto);
   }
 
   @Get()
-  findAll(
+  async findAll( // Adicionar async
     @Query('page', new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query('pageSize', new DefaultValuePipe(5), ParseIntPipe) pageSize: number,
     @Query('sortBy', new DefaultValuePipe('name')) sortBy: string,
     @Query('sortDirection', new DefaultValuePipe('asc')) sortDirection: 'asc' | 'desc',
     @Query('searchTerm') searchTerm?: string,
-  ) {
- 
-    const machineSortBy: keyof Machine = sortBy as keyof Machine;
+  ): Promise<{ data: Machine[]; total: number }> { 
 
-    return this.machinesService.findAll(
+    const machineSortBy: keyof Machine = sortBy as keyof Machine;
+    return await this.machinesService.findAll(
       page,
       pageSize,
       machineSortBy,
@@ -51,18 +50,18 @@ export class MachinesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.machinesService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<Machine> { 
+
+    return await this.machinesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMachineDto: UpdateMachineDto) {
-    return this.machinesService.update(id, updateMachineDto);
+  async update(@Param('id') id: string, @Body() updateMachineDto: UpdateMachineDto): Promise<Machine> {
+    return await this.machinesService.update(id, updateMachineDto);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string) {
-    this.machinesService.remove(id);
-  }
-}
+  async remove(@Param('id') id: string): Promise<any> {
+    return await this.machinesService.remove(id);
+  }}

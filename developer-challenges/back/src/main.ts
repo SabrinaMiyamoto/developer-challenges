@@ -17,11 +17,20 @@ async function bootstrap() {
     whitelist: true,
     forbidNonWhitelisted: true,
     transform: true,
+    transformOptions: {
+      enableImplicitConversion: true,
+    }
   }));
 
-  // 3. Iniciar o aplicativo em UMA ÚNICA PORTA
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
   await app.listen(PORT);
   console.log(`Nest está rodando na porta ${PORT}`);
+
+  //app.enableCors({
+   // origin: '*', // Ajustar depois para p front!(ex: 'http://localhost:3000')
+   // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  //  credentials: true,
+//  });
+
 }
 bootstrap();
