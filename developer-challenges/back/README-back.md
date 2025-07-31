@@ -40,12 +40,15 @@ O backend desta aplicação fornece a API para o sistema de gerenciamento de má
 git clone [https://github.com/SabrinaMiyamoto/developer-challenges](https://github.com/SabrinaMiyamoto/developer-challenges)
 cd developer-challenges
 
+```
+
 ##2. Instalar as Dependências
 
 ```Bash
 
 cd back
 npm install
+```
 
 ###3. Executar o Projeto
 ```Bash
