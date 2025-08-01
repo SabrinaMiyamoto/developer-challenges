@@ -21,6 +21,7 @@ import { z as zod } from 'zod';
 import { useDispatch } from 'react-redux';
 import { login } from '@/store/auth-slice';
 import { paths } from '@/paths';
+import { Box } from '@mui/system';
 
 const schema = zod.object({
   email: zod.string().min(1, { message: 'Email é obrigatório' }).email('Formato de email inválido'),
@@ -34,7 +35,6 @@ const FIXED_USERS = [
   { email: 'admin@teste.com', token: 'admin123' },
 ];
 
-//Para já deixar preenchida, para que eu não precise ficar escrevendo a senha
 const defaultValues = { email: FIXED_USERS[0].email, token: FIXED_USERS[0].token } satisfies Values;
 
 export function SignInForm(): React.JSX.Element {
@@ -78,15 +78,10 @@ const onSubmit = React.useCallback(
   )
 
   return (
-    <Stack spacing={4}>
+    <Box sx={{ maxWidth: 400, width:'100%'}}>
+    <Stack spacing={3}>
       <Stack spacing={1}>
-        <Typography variant="h4">Sign in</Typography>
-        <Typography color="text.secondary" variant="body2">
-          Ainda não tem uma conta?{' '}
-          <Link component={RouterLink} href={paths.auth.signUp} underline="hover" variant="subtitle2">
-            Cadastre-se
-          </Link>
-        </Typography>
+        <Typography variant="h4">Entrar</Typography>
       </Stack>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2}>
@@ -165,5 +160,6 @@ const onSubmit = React.useCallback(
         </Typography>
       </Alert>
     </Stack>
+    </Box>
   );
 }

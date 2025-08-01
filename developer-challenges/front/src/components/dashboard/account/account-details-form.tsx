@@ -40,7 +40,7 @@ export function AccountDetailsForm(): React.JSX.Element {
               }}
             >
               <FormControl fullWidth required>
-                <InputLabel>First name</InputLabel>
+                <InputLabel>Nome</InputLabel>
                 <OutlinedInput defaultValue="Sofia" label="First name" name="firstName" />
               </FormControl>
             </Grid>
@@ -51,7 +51,7 @@ export function AccountDetailsForm(): React.JSX.Element {
               }}
             >
               <FormControl fullWidth required>
-                <InputLabel>Last name</InputLabel>
+                <InputLabel>Sobrenome</InputLabel>
                 <OutlinedInput defaultValue="Rivers" label="Last name" name="lastName" />
               </FormControl>
             </Grid>
@@ -62,7 +62,7 @@ export function AccountDetailsForm(): React.JSX.Element {
               }}
             >
               <FormControl fullWidth required>
-                <InputLabel>Email address</InputLabel>
+                <InputLabel>Email</InputLabel>
                 <OutlinedInput defaultValue="sofia@devias.io" label="Email address" name="email" />
               </FormControl>
             </Grid>
@@ -73,7 +73,7 @@ export function AccountDetailsForm(): React.JSX.Element {
               }}
             >
               <FormControl fullWidth>
-                <InputLabel>Phone number</InputLabel>
+                <InputLabel>Celular</InputLabel>
                 <OutlinedInput label="Phone number" name="phone" type="tel" />
               </FormControl>
             </Grid>
@@ -84,7 +84,7 @@ export function AccountDetailsForm(): React.JSX.Element {
               }}
             >
               <FormControl fullWidth>
-                <InputLabel>State</InputLabel>
+                <InputLabel>Estado</InputLabel>
                 <Select defaultValue="New York" label="State" name="state" variant="outlined">
                   {states.map((option) => (
                     <MenuItem key={option.value} value={option.value}>
@@ -101,7 +101,7 @@ export function AccountDetailsForm(): React.JSX.Element {
               }}
             >
               <FormControl fullWidth>
-                <InputLabel>City</InputLabel>
+                <InputLabel>Cidade</InputLabel>
                 <OutlinedInput label="City" />
               </FormControl>
             </Grid>
@@ -109,7 +109,7 @@ export function AccountDetailsForm(): React.JSX.Element {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained">Save details</Button>
+          <Button variant="contained">Salvar</Button>
         </CardActions>
       </Card>
     </form>

@@ -1,3 +1,0 @@
--integrar o front e o back
--banco de dados
--testes

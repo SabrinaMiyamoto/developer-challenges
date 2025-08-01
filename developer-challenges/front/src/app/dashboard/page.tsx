@@ -1,4 +1,3 @@
-// src/app/dashboard/page.tsx
 import * as React from 'react';
 import { Grid, Box } from '@mui/material';
 import MachineList from '@/components/machine/machine-list';

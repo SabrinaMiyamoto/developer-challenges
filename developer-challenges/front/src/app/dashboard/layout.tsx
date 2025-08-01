@@ -1,5 +1,4 @@
 import * as React from 'react';
-import type { Metadata } from 'next'; 
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import GlobalStyles from '@mui/material/GlobalStyles';
@@ -7,8 +6,7 @@ import GlobalStyles from '@mui/material/GlobalStyles';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { MainNav } from '@/components/dashboard/layout/main-nav';
 import { SideNav } from '@/components/dashboard/layout/side-nav';
-import { config } from '@/config'; 
-export const metadata = { title: `Overview | Dashboard | ${config.site.name}` } satisfies Metadata;
+
 
 interface LayoutProps {
   children: React.ReactNode;

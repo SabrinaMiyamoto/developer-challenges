@@ -7,8 +7,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // 1. Configurar CORS 
+  // Permitir apenas pedidos do frontend
   app.enableCors({
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
+    origin: 'http://localhost:3000', 
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
 
@@ -25,12 +27,5 @@ async function bootstrap() {
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
   await app.listen(PORT);
   console.log(`Nest está rodando na porta ${PORT}`);
-
-  //app.enableCors({
-   // origin: '*', // Ajustar depois para p front!(ex: 'http://localhost:3000')
-   // methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  //  credentials: true,
-//  });
-
 }
 bootstrap();

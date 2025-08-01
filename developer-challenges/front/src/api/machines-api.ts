@@ -336,7 +336,7 @@ export const machinesApi = createApi({
       { page?: number; pageSize?: number; sortBy?: keyof IMonitoringPoint | 'sensorModel'; sortDirection?: 'asc' | 'desc'; searchTerm?: string }
     >({
       queryFn: async ({ page = 0, pageSize = 5, sortBy = 'name', sortDirection = 'asc', searchTerm }) => {
-        await new Promise(resolve => setTimeout(resolve, 300));
+       // await new Promise(resolve => setTimeout(resolve, 300));
 
         let filteredPoints = [...monitoringPointsData];
 

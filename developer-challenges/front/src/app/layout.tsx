@@ -12,8 +12,12 @@ import '@/styles/global.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Devias Kit',
-  description: 'Devias Kit is a professional admin template for React.',
+  title: 'Dynamox - teste',
+  icons:{
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

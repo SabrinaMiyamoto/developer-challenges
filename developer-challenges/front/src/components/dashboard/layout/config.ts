@@ -4,13 +4,13 @@ import type { NavItemConfig } from '@/types/nav';
 export const navItems: NavItemConfig[] = [
   {
     key: 'overview',
-    title: 'Overview',
+    title: 'Lista de Máquinas',
     href: '/',
     icon: 'ChartBarIcon',
   },
   {
     key: 'account',
-    title: 'Account',
+    title: 'Perfil',
     href: '/dashboard/account',
     icon: 'UserIcon', 
   },
